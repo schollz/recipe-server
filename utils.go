@@ -3,10 +3,29 @@ package main
 import (
 	"bytes"
 	"encoding/binary"
+	"hash/fnv"
 	"io"
 	"os"
 	"strings"
 )
+
+// http://stackoverflow.com/questions/13582519/how-to-generate-hash-number-of-a-string-in-go
+func hash(s string) int64 {
+	h := fnv.New32a()
+	h.Write([]byte(s))
+	num := h.Sum32()
+	return int64(num)
+}
+
+// http://stackoverflow.com/questions/10485743/contains-method-for-a-slice
+func contains(s []string, e string) bool {
+	for _, a := range s {
+		if a == e {
+			return true
+		}
+	}
+	return false
+}
 
 // https://www.socketloop.com/tutorials/golang-removes-punctuation-or-defined-delimiter-from-the-user-s-input
 const delim = "?!.;,*"

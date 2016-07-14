@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/boltdb/bolt"
 	"github.com/gin-gonic/gin"
@@ -52,7 +53,12 @@ func main() {
 	router := gin.Default()
 	router.LoadHTMLGlob("templates/*")
 	router.GET("/", func(c *gin.Context) {
-		recipe, _ := generateRecipe()
+		title, _ := getRandom("titles", "", true, time.Now().UnixNano())
+		c.Redirect(302, "/recipe/"+title.Text)
+	})
+	router.GET("/recipe/:title", func(c *gin.Context) {
+		title := c.Param("title")
+		recipe, _ := generateRecipe(title)
 		c.HTML(http.StatusOK, "recipe.html", gin.H{
 			"title":        recipe.Title,
 			"ingredients":  recipe.Ingredients,

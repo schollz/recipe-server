@@ -64,15 +64,14 @@ func getAllIngredients() []string {
 	return ingredientsSorted
 }
 
-func getRandom(databaseName string, ingredient string, mustHaveIngredients bool) (JSONLine, error) {
+func getRandom(databaseName string, ingredient string, mustHaveIngredients bool, seed int64) (JSONLine, error) {
 	var m JSONLine
 	var err error
 	var lastKey []byte
 	var db *bolt.DB
-	s1 := rand.NewSource(time.Now().UnixNano())
-	r := rand.New(s1)
 	numberOfTries := 0
-
+	s1 := rand.NewSource(seed)
+	r := rand.New(s1)
 	db, err = bolt.Open(databaseName+".db", 0600, nil)
 	if err != nil {
 		log.Fatal(err)
@@ -100,6 +99,7 @@ func getRandom(databaseName string, ingredient string, mustHaveIngredients bool)
 		if numberThings > 1 {
 			chosenNumber = uint64(r.Intn(int(numberThings - 1)))
 		}
+		fmt.Println(numberThings, chosenNumber)
 		err = db.View(func(tx *bolt.Tx) error {
 			if ingredient != "jsonlines" {
 				b0 := tx.Bucket([]byte(ingredient))
@@ -144,37 +144,49 @@ func hasIngredients(text string) []string {
 	return ingredients
 }
 
-func generateRecipe() (Recipe, error) {
+func generateRecipe(title string) (Recipe, error) {
 	var recipe Recipe
-	allIngredients := mapset.NewSet()
-	title, err := getRandom("titles", "", true)
-	recipe.Title = title.Text
-	for _, ingredient := range title.Ingredients {
-		allIngredients.Add(ingredient)
+	var err error
+	var ingredientList []string
+
+	if title == "" {
+		title, _ := getRandom("titles", "", true, time.Now().UnixNano())
+		recipe.Title = title.Text
+	} else {
+		recipe.Title = title
+	}
+	seed := hash(recipe.Title)
+
+	for _, ingredient := range hasIngredients(recipe.Title) {
+		ingredientList = append(ingredientList, ingredient)
 	}
 
-	for _, ingredient := range allIngredients.ToSlice() {
-		instruction, err2 := getRandom("instructions", ingredient.(string), true)
+	for _, ingredient := range ingredientList {
+		instruction, err2 := getRandom("instructions", ingredient, true, seed)
 		if err2 == nil {
 			recipe.Instructions = append(recipe.Instructions, instruction.Text)
 		}
 		for _, insIngredient := range instruction.Ingredients {
-			allIngredients.Add(insIngredient)
+			if !contains(ingredientList, insIngredient) {
+				ingredientList = append(ingredientList, insIngredient)
+			}
 		}
 	}
 
 	for i := 0; i < 2; i++ {
-		instruction, err2 := getRandom("instructions", "", false)
+		instruction, err2 := getRandom("instructions", "", false, seed+1+int64(i))
 		if err2 == nil {
 			recipe.Instructions = append(recipe.Instructions, instruction.Text)
 		}
 		for _, insIngredient := range instruction.Ingredients {
-			allIngredients.Add(insIngredient)
+			if !contains(ingredientList, insIngredient) {
+				ingredientList = append(ingredientList, insIngredient)
+			}
 		}
 	}
 
-	for _, ingredient := range allIngredients.ToSlice() {
-		ingredient, err2 := getRandom("ingredients", ingredient.(string), true)
+	for _, ingredient := range ingredientList {
+		ingredient, err2 := getRandom("ingredients", ingredient, true, seed+2)
 		if err2 == nil {
 			recipe.Ingredients = append(recipe.Ingredients, ingredient.Text)
 		}
