@@ -56,6 +56,10 @@ func main() {
 		title, _ := getRandom("titles", "", true, time.Now().UnixNano())
 		c.Redirect(302, "/recipe/"+title.Text)
 	})
+	router.GET("/recipe", func(c *gin.Context) {
+		title, _ := getRandom("titles", "", true, time.Now().UnixNano())
+		c.Redirect(302, "/recipe/"+title.Text)
+	})
 	router.GET("/recipe/:title", func(c *gin.Context) {
 		title := c.Param("title")
 		recipe, _ := generateRecipe(title)
