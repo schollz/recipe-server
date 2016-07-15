@@ -39,17 +39,13 @@ func check(databaseName string) {
 
 func main() {
 
-	generateDatabase("titles")
-	generateDatabase("instructions")
-	generateDatabase("ingredients")
-	// check("markov_title.0")
-	// check("titles")
-	// fmt.Println(getRandom("titles", "", true))
-	// fmt.Println(getRandom("ingredients", "apples"))
-	// fmt.Println(getRandom("instructions", "apples"))
-
+	dataFiles := []string{"titles", "instructions", "ingredients"}
+	for _, dataFile := range dataFiles {
+		fmt.Println("Generating database for " + dataFile)
+		generateDatabase(dataFile)
+	}
 	recipeSetup()
-	fmt.Println(listOfIngredients[0:10])
+
 	router := gin.Default()
 	router.LoadHTMLGlob("templates/*")
 	router.GET("/", func(c *gin.Context) {
