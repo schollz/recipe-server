@@ -78,7 +78,11 @@ func getRandom(databaseName string, ingredient string, mustHaveIngredients bool,
 	}
 	defer db.Close()
 	if ingredient == "" {
-		ingredient = "jsonlines"
+		if r.Intn(10) < 5 {
+			ingredient = "jsonlines"
+		} else {
+			ingredient = "noingredients"
+		}
 	}
 	err = db.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(ingredient))
@@ -99,7 +103,6 @@ func getRandom(databaseName string, ingredient string, mustHaveIngredients bool,
 		if numberThings > 1 {
 			chosenNumber = uint64(r.Intn(int(numberThings - 1)))
 		}
-		fmt.Println(numberThings, chosenNumber)
 		err = db.View(func(tx *bolt.Tx) error {
 			if ingredient != "jsonlines" {
 				b0 := tx.Bucket([]byte(ingredient))
@@ -164,7 +167,7 @@ func generateRecipe(title string) (Recipe, error) {
 	for _, ingredient := range ingredientList {
 		instruction, err2 := getRandom("instructions", ingredient, true, seed)
 		if err2 == nil {
-			recipe.Instructions = append(recipe.Instructions, instruction.Text)
+			recipe.Instructions = append(recipe.Instructions, capitalizeSentences(instruction.Text))
 		}
 		for _, insIngredient := range instruction.Ingredients {
 			if !contains(ingredientList, insIngredient) {
@@ -176,7 +179,7 @@ func generateRecipe(title string) (Recipe, error) {
 	for i := 0; i < 2; i++ {
 		instruction, err2 := getRandom("instructions", "", false, seed+1+int64(i))
 		if err2 == nil {
-			recipe.Instructions = append(recipe.Instructions, instruction.Text)
+			recipe.Instructions = append(recipe.Instructions, capitalizeSentences(instruction.Text))
 		}
 		for _, insIngredient := range instruction.Ingredients {
 			if !contains(ingredientList, insIngredient) {
@@ -201,5 +204,6 @@ func generateRecipe(title string) (Recipe, error) {
 	// for num, instruction := range recipe.Instructions {
 	// 	fmt.Printf("%d. %s\n", num+1, instruction)
 	// }
+	recipe.Title = properTitle(recipe.Title)
 	return recipe, err
 }

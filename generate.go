@@ -128,6 +128,14 @@ func generateDatabase(databaseName string) {
 					id2, _ := b2.NextSequence()
 					b2.Put(itob(id2), itob(id))
 				}
+				if len(m.Ingredients) == 0 {
+					b2 := tx.Bucket([]byte("noingredients"))
+					if b2 == nil {
+						return fmt.Errorf("doesn't exist")
+					}
+					id2, _ := b2.NextSequence()
+					b2.Put(itob(id2), itob(id))
+				}
 
 			}
 		}

@@ -9,6 +9,48 @@ import (
 	"strings"
 )
 
+func capitalizeSentences(s string) string {
+	ss := strings.Split(s, ".")
+	newS := ""
+	for _, t := range ss {
+		u := strings.TrimSpace(t)
+		if len(u) < 2 {
+			continue
+		}
+		newS = newS + makeFirstUpperCase(u) + ". "
+	}
+	return newS
+}
+
+func makeFirstUpperCase(s string) string {
+
+	if len(s) < 2 {
+		return strings.ToLower(s)
+	}
+
+	bts := []byte(s)
+
+	lc := bytes.ToUpper([]byte{bts[0]})
+	rest := bts[1:]
+
+	return string(bytes.Join([][]byte{lc, rest}, nil))
+}
+
+// http://golangcookbook.com/chapters/strings/title/
+func properTitle(input string) string {
+	words := strings.Fields(input)
+	smallwords := " a an on the to and "
+
+	for index, word := range words {
+		if strings.Contains(smallwords, " "+word+" ") {
+			words[index] = word
+		} else {
+			words[index] = strings.Title(word)
+		}
+	}
+	return strings.Join(words, " ")
+}
+
 // http://stackoverflow.com/questions/13582519/how-to-generate-hash-number-of-a-string-in-go
 func hash(s string) int64 {
 	h := fnv.New32a()
