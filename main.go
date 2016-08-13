@@ -65,5 +65,6 @@ func main() {
 			"instructions": recipe.Instructions,
 		})
 	})
+	router.Static("/images", "./images")
 	router.Run(":8015")
 }

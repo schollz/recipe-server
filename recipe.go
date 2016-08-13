@@ -205,5 +205,6 @@ func generateRecipe(title string) (Recipe, error) {
 	// 	fmt.Printf("%d. %s\n", num+1, instruction)
 	// }
 	recipe.Title = properTitle(recipe.Title)
+	makeFile(ingredientList, recipe.Title)
 	return recipe, err
 }
