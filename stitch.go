@@ -55,11 +55,11 @@ func getFileNames(ingredients []string) []string {
 	var ingredientImages []string
 	for _, ingredient := range ingredients {
 		ingredientFolder := strings.Join(strings.Split(strings.TrimSpace(ingredient), " "), "-")
-		if !exists(path.Join("resized", "ingredients", ingredientFolder)) {
+		if !exists(path.Join("resized", ingredientFolder)) {
 			continue
 		}
 		fileList := []string{}
-		err := filepath.Walk(path.Join("resized", "ingredients", ingredientFolder), func(path string, f os.FileInfo, err error) error {
+		err := filepath.Walk(path.Join("resized", ingredientFolder), func(path string, f os.FileInfo, err error) error {
 			if strings.Contains(path, ".jpg") || strings.Contains(path, ".JPG") {
 				fileList = append(fileList, path)
 			}
