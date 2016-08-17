@@ -23,7 +23,7 @@ var (
 func stitch(images []image.Image) image.Image {
 	img := image.NewRGBA(image.Rect(0, 0, 400, 300))
 	for i, simg := range images {
-		draw.Draw(img, simg.Bounds().Add(image.Point{(i % 3) * 100, (i / 3) * 100}), simg, zero, draw.Src)
+		draw.Draw(img, simg.Bounds().Add(image.Point{(i % 3) * 133, (i / 3) * 100}), simg, zero, draw.Src)
 	}
 	return img
 }
